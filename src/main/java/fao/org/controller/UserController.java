@@ -6,17 +6,25 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import fao.org.DTO.UserDTO;
+import fao.org.service.UserService;
 
 @RestController
 public class UserController {
 	
+	@Autowired
+	private UserService userService;
 	
 	
+/*	
 public static List<UserDTO> usuario= new ArrayList<>();
 	
 	@PostConstruct
@@ -43,20 +51,34 @@ public static List<UserDTO> usuario= new ArrayList<>();
 	usuario.add(userDTO);
 	usuario.add(userDTO2);
 	usuario.add(userDTO1);
-	}
+	}*/
 	
 	@GetMapping("/user")
 	public List<UserDTO> getAll() {
-		return usuario;
+		List<UserDTO> usuarios = userService.getAll();
+		return usuarios;
 	}
+	
+	@GetMapping("/user/search")
+	public List<UserDTO> queryByName(
+					@RequestParam(name = "nome", required = true)
+					String nome){
+		return userService.queryByName(nome);
+	}
+	
+	@GetMapping("/user/{id}")
+	public UserDTO getById(@PathVariable Long id) {
+		return userService.findById(id);
+	}
+	
 	@GetMapping("/users/{cpf}")
 	public UserDTO getUserFiltroCpf(@PathVariable String cpf) {
-		for(UserDTO userDTO : usuario) {
-			if(userDTO.getCpf().equals(cpf)) {
-				return userDTO;
-			}
-		}
-		return null;
+		return userService.findByCpf(cpf);
+	}
+	
+	@PostMapping("/user")
+	UserDTO inserir(@RequestBody UserDTO uDto) {
+		return userService.save(uDto);
 	}
 
 }
